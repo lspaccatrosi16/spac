@@ -1,16 +1,23 @@
 package main
 
 import (
+	"github.com/lspaccatrosi16/go-cli-tools/command"
+	"github.com/lspaccatrosi16/spac/lib/install"
 	"github.com/lspaccatrosi16/spac/lib/setup"
-	"github.com/lspaccatrosi16/spac/lib/types"
 )
 
 func main() {
-	manager := types.NewManager()
+	manager := command.NewManager(command.ManagerConfig{Searchable: true})
 
-	manager.Register("setup", "Set up my system", setup.Setup)
+	manager.Register("setup", "Basic System Setup", setup.Setup)
+	manager.Register("install", "Install Programs", install.Install)
 
-	manager.Gui()
+	for {
+		res := manager.Tui()
+		if res {
+			break
+		}
+	}
 }
 
 // what do I want this to do?

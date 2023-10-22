@@ -10,6 +10,7 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/lspaccatrosi16/go-cli-tools/command"
 	"github.com/lspaccatrosi16/go-cli-tools/input"
 )
 
@@ -24,45 +25,25 @@ func Setup() error {
 }
 
 func loop() error {
-	topOpts := []input.SelectOption{
-		{Name: "Create PATH folder ~/bin", Value: "b"},
-		{Name: "Install AUP", Value: "a"},
-		{Name: "Install Scaffold", Value: "s"},
-		{Name: "Exit", Value: "e"},
-	}
+	manager := command.NewManager(command.ManagerConfig{Searchable: false})
+
+	manager.Register("1", "Create Path folder ~/bin", binPath)
+	manager.Register("2", "Install AUP", aup)
+	manager.Register("3", "Install Scaffold", scaffold)
 
 	div := strings.Repeat("=", 20)
 
 	for {
+
 		fmt.Printf("%s SETUP %s\n", div, div)
-		cmd, err := input.GetSearchableSelection("Setup item", topOpts)
-		if err != nil {
-			return err
-		}
-
-		switch cmd {
-		case "b":
-			err := binPath()
-			if err != nil {
-				return err
-			}
-
-		case "a":
-			err := aup()
-			if err != nil {
-				return err
-			}
-		case "s":
-			err := scaffold()
-			if err != nil {
-				return err
-			}
-		case "e":
-			return nil
-		}
-
+		exit := manager.Tui()
 		fmt.Println("\nCompleted Successfully")
+
+		if exit {
+			break
+		}
 	}
+	return nil
 }
 
 func getHome() (string, error) {
