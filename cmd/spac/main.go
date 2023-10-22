@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/lspaccatrosi16/go-cli-tools/command"
+	"github.com/lspaccatrosi16/spac/lib/config"
 	"github.com/lspaccatrosi16/spac/lib/install"
 	"github.com/lspaccatrosi16/spac/lib/setup"
 )
@@ -11,6 +12,7 @@ func main() {
 
 	manager.Register("setup", "Basic System Setup", setup.Setup)
 	manager.Register("install", "Install Programs", install.Install)
+	manager.Register("config", "Update App Configs", config.Config)
 
 	for {
 		res := manager.Tui()

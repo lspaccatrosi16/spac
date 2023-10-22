@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/lspaccatrosi16/spac/lib/install/specific/golang"
-	"github.com/lspaccatrosi16/spac/lib/install/specific/nvm"
+	"github.com/lspaccatrosi16/spac/lib/install/specific/script"
 )
 
 type specific struct {
@@ -39,7 +39,9 @@ func (l *specificList) Get(name string) *(func() error) {
 func FindSpecific(name string) (*(func() error), error) {
 	list := specificList{}
 
-	list.Register("nvm", nvm.Install)
+	list.Register("nvm", script.UseScript("https://github.com/nvm-sh/nvm/blob/master/install.sh", "nvm"))
+	list.Register("starship", script.UseScript("https://starship.rs/install.sh", "starship"))
+
 	list.Register("go", golang.Install)
 
 	exec := list.Get(name)
