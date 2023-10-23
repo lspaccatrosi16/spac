@@ -32,17 +32,13 @@ func loop() error {
 	manager.Register("3", "Install Scaffold", scaffold)
 	manager.Register("4", "Install Releasetool", releasetool)
 
-	div := strings.Repeat("=", 20)
-
 	for {
-
-		fmt.Printf("%s SETUP %s\n", div, div)
 		exit := manager.Tui()
-		fmt.Println("\nCompleted Successfully")
 
 		if exit {
 			break
 		}
+		fmt.Println("\nCompleted Successfully")
 	}
 	return nil
 }
