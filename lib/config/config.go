@@ -57,6 +57,8 @@ func UseConfig(item configItem) func() error {
 	return func() error {
 		url := fmt.Sprintf("https://raw.githubusercontent.com/lspaccatrosi16/luca-config/master/%s", item.File)
 
+		fmt.Printf("Downloading %s config from lspaccatrosi16/luca-config\n", item.Name)
+
 		resp, err := http.Get(url)
 
 		if err != nil {
@@ -82,6 +84,8 @@ func UseConfig(item configItem) func() error {
 
 		resp.Body.Close()
 		f.Close()
+
+		fmt.Printf("Successfuly got %s config\n", item.Name)
 
 		return nil
 	}
