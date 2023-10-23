@@ -30,6 +30,7 @@ func loop() error {
 	manager.Register("1", "Create Path folder ~/bin", binPath)
 	manager.Register("2", "Install AUP", aup)
 	manager.Register("3", "Install Scaffold", scaffold)
+	manager.Register("4", "Install Releasetool", releasetool)
 
 	div := strings.Repeat("=", 20)
 
@@ -178,6 +179,19 @@ func aup() error {
 
 func scaffold() error {
 	cmd := exec.Command("aup", "-r", "lspaccatrosi16/scaffold", "-a", "scaffold-linux", "-b", "scaffold", "add")
+
+	out, err := cmd.Output()
+	fmt.Println(string(out))
+	if err != nil {
+		return err
+	}
+
+	return nil
+
+}
+
+func releasetool() error {
+	cmd := exec.Command("aup", "-r", "lspaccatrosi16/releasetool", "-a", "releasetool-linux", "-b", "release", "add")
 
 	out, err := cmd.Output()
 	fmt.Println(string(out))
