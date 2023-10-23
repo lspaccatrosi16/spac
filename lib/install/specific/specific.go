@@ -3,6 +3,7 @@ package specific
 import (
 	"fmt"
 
+	"github.com/lspaccatrosi16/spac/lib/install/specific/aup"
 	"github.com/lspaccatrosi16/spac/lib/install/specific/golang"
 	"github.com/lspaccatrosi16/spac/lib/install/specific/script"
 )
@@ -43,6 +44,7 @@ func FindSpecific(name string) (*(func() error), error) {
 	list.Register("starship", script.UseScript("https://starship.rs/install.sh", "starship"))
 
 	list.Register("go", golang.Install)
+	list.Register("aup", aup.Install)
 
 	exec := list.Get(name)
 	if exec == nil {

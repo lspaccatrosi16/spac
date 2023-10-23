@@ -2,10 +2,7 @@ package setup
 
 import (
 	"fmt"
-	"io"
-	"net/http"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -28,10 +25,6 @@ func loop() error {
 	manager := command.NewManager(command.ManagerConfig{Searchable: false})
 
 	manager.Register("1", "Create Path folder ~/bin", binPath)
-	manager.Register("2", "Install AUP", aup)
-	manager.Register("3", "Install Scaffold", scaffold)
-	manager.Register("4", "Install Releasetool", releasetool)
-
 	for {
 		exit := manager.Tui()
 
@@ -138,63 +131,4 @@ func binPath() error {
 		fmt.Fprintf(f, "\nexport PATH=\"$PATH:%s\"", binDir)
 	}
 	return nil
-}
-
-func aup() error {
-	assetLink := "https://github.com/lspaccatrosi16/aup/releases/latest/download/aup-linux"
-	resp, err := http.Get(assetLink)
-	if err != nil {
-		return err
-	}
-
-	defer resp.Body.Close()
-
-	fmt.Printf("Got aup binary of size %.2f MiB\n", float32(resp.ContentLength)/(1024*1024))
-	binPath, err := getBinPath()
-	if err != nil {
-		return err
-	}
-
-	targetPath := filepath.Join(binPath, "aup")
-
-	f, err := os.Create(targetPath)
-
-	if err != nil {
-		return err
-	}
-
-	defer f.Close()
-	io.Copy(f, resp.Body)
-
-	err = os.Chmod(targetPath, 0o755)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func scaffold() error {
-	cmd := exec.Command("aup", "-r", "lspaccatrosi16/scaffold", "-a", "scaffold-linux", "-b", "scaffold", "add")
-
-	out, err := cmd.Output()
-	fmt.Println(string(out))
-	if err != nil {
-		return err
-	}
-
-	return nil
-
-}
-
-func releasetool() error {
-	cmd := exec.Command("aup", "-r", "lspaccatrosi16/releasetool", "-a", "releasetool-linux", "-b", "release", "add")
-
-	out, err := cmd.Output()
-	fmt.Println(string(out))
-	if err != nil {
-		return err
-	}
-
-	return nil
-
 }

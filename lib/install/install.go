@@ -10,8 +10,15 @@ import (
 	"github.com/lspaccatrosi16/spac/lib/install/sudo"
 )
 
+type aupPkg struct {
+	Repokey  string
+	Artifact string
+	Binary   string
+}
+
 type pkg struct {
 	APT     string
+	AUP     *aupPkg
 	DNF     string
 	FLATPAK string
 }
@@ -100,6 +107,10 @@ func handleNormal(target installable) error {
 		pkgManOpt = append(pkgManOpt, input.SelectOption{Name: "apt", Value: "a"})
 	}
 
+	if target.PkgName.AUP != nil {
+		pkgManOpt = append(pkgManOpt, input.SelectOption{Name: "aup", Value: "l"})
+	}
+
 	if target.PkgName.DNF != "" {
 		pkgManOpt = append(pkgManOpt, input.SelectOption{Name: "dnf", Value: "d"})
 	}
@@ -117,6 +128,8 @@ func handleNormal(target installable) error {
 
 	case "a":
 		return installApt(target)
+	case "l":
+		return installAup(target)
 	case "d":
 		return installDnf(target)
 	case "f":
@@ -149,4 +162,11 @@ func installApt(target installable) error {
 func installFlatpak(target installable) error {
 	cmd := fmt.Sprintf("flatpak install flathub %s", target.PkgName.FLATPAK)
 	return sudo.RunSudo(cmd)
+}
+
+func installAup(target installable) error {
+	aup := target.PkgName.AUP
+	cmd := fmt.Sprintf("aup -r %s -a %s -b %s add", aup.Repokey, aup.Artifact, aup.Binary)
+
+	return sudo.RunNonSudo(cmd)
 }
