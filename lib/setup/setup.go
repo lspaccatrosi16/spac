@@ -3,15 +3,12 @@ package setup
 import (
 	"fmt"
 	"os"
-	"path/filepath"
 	"runtime"
-	"strings"
 
 	"github.com/lspaccatrosi16/go-cli-tools/command"
 	"github.com/lspaccatrosi16/go-cli-tools/input"
+	"github.com/lspaccatrosi16/spac/lib/path"
 )
-
-var profileFile string
 
 func Setup() error {
 	if runtime.GOOS != "linux" {
@@ -25,6 +22,7 @@ func loop() error {
 	manager := command.NewManager(command.ManagerConfig{Searchable: false})
 
 	manager.Register("1", "Create Path folder ~/bin", binPath)
+	manager.Register("2", "Add a directory to PATH", addCustomToPath)
 	for {
 		exit := manager.Tui()
 
@@ -36,99 +34,27 @@ func loop() error {
 	return nil
 }
 
-func getHome() (string, error) {
-	homeDir, found := os.LookupEnv("HOME")
-	if !found {
-		return "", fmt.Errorf("$HOME is unset")
-	}
-
-	return homeDir, nil
-
-}
-
-func getProfile() (string, error) {
-	if profileFile != "" {
-		return profileFile, nil
-	}
-
-	homeDir, err := getHome()
-	if err != nil {
-		return "", err
-	}
-
-	profLocOpts := []input.SelectOption{
-		{Name: "ZSH: ~./zshrc", Value: filepath.Join(homeDir, ".zshrc")},
-		{Name: "BASH: ~/.bashrc", Value: filepath.Join(homeDir, ".bashrc")},
-		{Name: "Other", Value: "other"},
-	}
-
-	profLoc, err := input.GetSelection("Profile File", profLocOpts)
-
-	if err != nil {
-		return "", err
-	}
-
-	if profLoc == "other" {
-		profLoc = input.GetInput("Profile File Location")
-	}
-
-	profileFile = profLoc
-	return profLoc, err
-}
-
-func getBinPath() (string, error) {
-	homeDir, err := getHome()
-
-	if err != nil {
-		return "", err
-	}
-
-	binDir := filepath.Join(homeDir, "bin")
-	return binDir, nil
-
-}
-
 func binPath() error {
-	binDir, err := getBinPath()
+	binDir := path.GetBin()
+	err := os.MkdirAll(path.Abs(binDir), 0o755)
 	if err != nil {
 		return err
 	}
 
-	err = os.MkdirAll(binDir, 0o755)
+	err = path.AddToPath(binDir)
+
 	if err != nil {
 		return err
 	}
 
-	pathContent, _ := os.LookupEnv("PATH")
-	pathArrs := strings.Split(pathContent, ":")
+	return nil
+}
 
-	duplicate := false
-
-	for _, path := range pathArrs {
-		if path == binDir {
-			duplicate = true
-		}
-	}
-
-	if !duplicate {
-		profile, err := getProfile()
-		if err != nil {
-			return err
-		}
-
-		f, err := os.Open(profile)
-		if err != nil {
-			if os.IsNotExist(err) {
-				f, err = os.Create(profile)
-				if err != nil {
-					return err
-				}
-			} else {
-				return err
-			}
-		}
-		defer f.Close()
-		fmt.Fprintf(f, "\nexport PATH=\"$PATH:%s\"", binDir)
+func addCustomToPath() error {
+	customDir := input.GetInput("Directory")
+	err := path.AddToPath(customDir)
+	if err != nil {
+		return err
 	}
 	return nil
 }

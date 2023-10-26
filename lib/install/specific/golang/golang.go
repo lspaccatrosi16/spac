@@ -11,6 +11,7 @@ import (
 
 	"github.com/lspaccatrosi16/go-cli-tools/input"
 	"github.com/lspaccatrosi16/spac/lib/install/sudo"
+	"github.com/lspaccatrosi16/spac/lib/path"
 )
 
 func Install() error {
@@ -77,6 +78,12 @@ start:
 	}
 
 	err = os.RemoveAll(tmpFolder)
+
+	if err != nil {
+		return err
+	}
+
+	err = path.AddToPath("/usr/local/go/bin")
 
 	if err != nil {
 		return err
