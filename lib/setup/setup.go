@@ -41,7 +41,7 @@ func binPath() error {
 		return err
 	}
 
-	err = path.AddToPath(binDir)
+	err = path.AddDirToPath(binDir)
 
 	if err != nil {
 		return err
@@ -52,7 +52,7 @@ func binPath() error {
 
 func addCustomToPath() error {
 	customDir := input.GetInput("Directory")
-	err := path.AddToPath(customDir)
+	err := path.AddDirToPath(customDir)
 	if err != nil {
 		return err
 	}

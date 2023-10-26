@@ -83,7 +83,7 @@ start:
 		return err
 	}
 
-	err = path.AddToPath("/usr/local/go/bin")
+	err = path.AddDirToPath("/usr/local/go/bin")
 
 	if err != nil {
 		return err

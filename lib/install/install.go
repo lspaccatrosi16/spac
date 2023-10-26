@@ -96,6 +96,7 @@ func loop() error {
 			fmt.Printf("%s was configured successfully\n", selected.Name)
 		}
 
+		fmt.Printf("You may need to open a new terminal, or refresh your profile for the changes to take effect")
 	}
 
 }

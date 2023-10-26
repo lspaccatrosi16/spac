@@ -6,6 +6,9 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+
+	"github.com/lspaccatrosi16/go-cli-tools/config"
+	"github.com/lspaccatrosi16/spac/lib/path"
 )
 
 func Install() error {
@@ -38,6 +41,16 @@ func Install() error {
 	if err != nil {
 		return err
 	}
+
+	configDir, err := config.GetConfigPath("aup")
+	if err != nil {
+		return err
+	}
+
+	pathFile := filepath.Join(configDir, ".auprc")
+
+	path.AddStringToPath(fmt.Sprintf("source %s", path.Abs(pathFile)))
+
 	return nil
 }
 

@@ -13,20 +13,8 @@ import (
 
 var profileFile string
 
-func AddToPath(dir string) error {
-	pathContent, _ := os.LookupEnv("PATH")
-	dirs := strings.Split(pathContent, ":")
-
-	absDir := Abs(dir)
-
-	for _, d := range dirs {
-		if d == absDir {
-			fmt.Printf("PATH already has %s\n", absDir)
-			return nil
-		}
-	}
-
-	profileLoc, err := getProfileFile()
+func AddStringToPath(str string) error {
+	profileLoc, err := GetProfileFile()
 	if err != nil {
 		return err
 	}
@@ -45,9 +33,7 @@ func AddToPath(dir string) error {
 		src.Close()
 	}
 
-	pathStr := fmt.Sprintf("export PATH=\"$PATH:%s\"", absDir)
-
-	fmt.Fprintln(contents, pathStr)
+	fmt.Fprintln(contents, str)
 
 	dst, err := os.Create(profileLoc)
 
@@ -58,12 +44,36 @@ func AddToPath(dir string) error {
 	io.Copy(dst, contents)
 	dst.Close()
 
-	fmt.Printf("Added %s to PATH\n", absDir)
+	fmt.Printf("Added %s to PATH\n", str)
 
+	return nil
+
+}
+
+func AddDirToPath(dir string) error {
+	pathContent, _ := os.LookupEnv("PATH")
+	dirs := strings.Split(pathContent, ":")
+
+	absDir := Abs(dir)
+
+	for _, d := range dirs {
+		if d == absDir {
+			fmt.Printf("PATH already has %s\n", absDir)
+			return nil
+		}
+	}
+
+	pathStr := fmt.Sprintf("export PATH=\"$PATH:%s\"", absDir)
+
+	err := AddStringToPath(pathStr)
+
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
-func getProfileFile() (string, error) {
+func GetProfileFile() (string, error) {
 	if profileFile != "" {
 		return profileFile, nil
 	}
