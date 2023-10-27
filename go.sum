@@ -12,6 +12,8 @@ github.com/lspaccatrosi16/go-cli-tools v0.2.5 h1:kcc8oQphZnTuAqwXe+9HPz73jT15wa4
 github.com/lspaccatrosi16/go-cli-tools v0.2.5/go.mod h1:ppOT+F1t4THNKFcvLjED6tVHPZ2Opq4+yZv6aukjR98=
 github.com/lspaccatrosi16/go-cli-tools v0.3.2 h1:rgQW23fIIV1kvn9mvoaW+aggC7axm57tGcC3iPFs8WI=
 github.com/lspaccatrosi16/go-cli-tools v0.3.2/go.mod h1:ppOT+F1t4THNKFcvLjED6tVHPZ2Opq4+yZv6aukjR98=
+github.com/lspaccatrosi16/go-cli-tools v0.3.4 h1:kCQZAtUlxlD3OJdDBiuqxgyc7g7rMtF1aoTBA50HjM0=
+github.com/lspaccatrosi16/go-cli-tools v0.3.4/go.mod h1:ppOT+F1t4THNKFcvLjED6tVHPZ2Opq4+yZv6aukjR98=
 github.com/manifoldco/promptui v0.9.0 h1:3V4HzJk1TtXW1MTZMP7mdlwbBpIinw3HztaIlYthEiA=
 github.com/manifoldco/promptui v0.9.0/go.mod h1:ka04sppxSGFAtxX0qhlYQjISsg9mR4GWtQEhdbn6Pgg=
 golang.org/x/sys v0.0.0-20181122145206-62eef0e2fa9b/go.mod h1:STP8DvDyc/dI5b8T5hshtkjS+E42TnysNCUPdjciGhY=

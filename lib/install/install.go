@@ -5,6 +5,7 @@ import (
 	"runtime"
 	"sort"
 
+	"github.com/lspaccatrosi16/go-cli-tools/command"
 	"github.com/lspaccatrosi16/go-cli-tools/input"
 	"github.com/lspaccatrosi16/spac/lib/install/specific"
 	"github.com/lspaccatrosi16/spac/lib/install/sudo"
@@ -24,10 +25,11 @@ type pkg struct {
 }
 
 type installable struct {
-	Name    string
-	PkgName *pkg
-	Special bool
-	Config  func() error
+	Name        string
+	Description string
+	PkgName     *pkg
+	Special     bool
+	Config      func() error
 }
 
 type installList []installable
@@ -55,50 +57,45 @@ func loop() error {
 	list := list()
 	sort.Sort(list)
 
-	options := []input.SelectOption{}
+	manager := command.NewManager(command.ManagerConfig{Searchable: true})
+
 	for _, item := range *list {
-		options = append(options, input.SelectOption{Name: item.Name, Value: item.Name})
+		if item.Special {
+			manager.Register(item.Name, item.Description, wrapTarget(item, handleSpecial))
+		} else {
+			manager.Register(item.Name, item.Description, wrapTarget(item, handleNormal))
+		}
 	}
 
-	options = append(options, input.SelectOption{Name: "Back", Value: "e"})
-
 	for {
-		c, idx, err := input.GetSearchableSelectionIdx("Select Package", options)
-		if err != nil {
-			return err
-		}
-
-		if c == "e" {
+		exit := manager.Tui()
+		if exit {
 			return nil
 		}
 
-		selected := (*list)[idx]
+	}
+}
 
-		if selected.Special {
-			err = handleSpecial(selected)
-		} else {
-			err = handleNormal(selected)
-		}
-
+func wrapTarget(target installable, f func(installable) error) func() error {
+	return func() error {
+		err := f(target)
 		if err != nil {
 			return err
 		}
 
-		fmt.Printf("%s was installed successfully\n", selected.Name)
+		fmt.Printf("%s was installed successfully\n", target.Name)
 
-		if selected.Config != nil {
-			err = (selected.Config)()
+		if target.Config != nil {
+			err = target.Config()
 
 			if err != nil {
 				return err
 			}
-
-			fmt.Printf("%s was configured successfully\n", selected.Name)
+			fmt.Printf("%s was configured successfully\n", target.Name)
 		}
-
 		fmt.Printf("You may need to open a new terminal, or refresh your profile for the changes to take effect")
+		return nil
 	}
-
 }
 
 func handleNormal(target installable) error {
