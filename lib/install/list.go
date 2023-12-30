@@ -15,6 +15,7 @@ func list() *installList {
 		{"releasetool", "Automatic github releaser", &pkg{"", &aupPkg{"lspaccatrosi16/releasetool", "releasetool-linux", "release"}, "", ""}, false, nil},
 		{"bupload", "Quick uploader to / from cloud buckets", &pkg{"", &aupPkg{"lspaccatrosi16/bupload", "bupload-linux", "bupload"}, "", ""}, false, nil},
 		{"motionTui", "TUI for Motion", &pkg{"", &aupPkg{"lspaccatrosi16/motion-tui", "motion-linux", "motion"}, "", ""}, false, nil},
+		{"ts-go", "Converts Typescript types into Golang types", &pkg{"", &aupPkg{"lspaccatrosi16/ts-go", "ts-go-linux", "ts-go"}, "", ""}, false, nil},
 	}
 	return &list
 }
