@@ -2,6 +2,7 @@ package install
 
 import (
 	"fmt"
+	"os"
 	"runtime"
 	"sort"
 
@@ -30,6 +31,7 @@ type installable struct {
 	PkgName     *pkg
 	Special     bool
 	Config      func() error
+	Category    []string
 }
 
 type installList []installable
@@ -46,6 +48,10 @@ func (b installList) Less(i int, j int) bool {
 	return b[i].Name < b[j].Name
 }
 
+func RefreshCache() error {
+	return os.RemoveAll(configDir)
+}
+
 func Install() error {
 	if runtime.GOOS != "linux" {
 		return fmt.Errorf("install command only works on linux, not %s", runtime.GOOS)
@@ -54,25 +60,56 @@ func Install() error {
 }
 
 func loop() error {
-	list := list()
-	sort.Sort(list)
+	list, err := list()
 
-	manager := command.NewManager(command.ManagerConfig{Searchable: true})
+	if err != nil {
+		return err
+	}
+
+	categories := map[string]*installList{}
 
 	for _, item := range *list {
-		if item.Special {
-			manager.Register(item.Name, item.Description, wrapTarget(item, handleSpecial))
-		} else {
-			manager.Register(item.Name, item.Description, wrapTarget(item, handleNormal))
+		for _, c := range item.Category {
+			l, ok := categories[c]
+			if !ok {
+				l = &installList{}
+			}
+			*l = append(*l, item)
+			categories[c] = l
 		}
 	}
 
+	categories["All"] = list
+
+	for _, cat := range categories {
+		sort.Sort(cat)
+	}
+
+	sort.Sort(list)
+
+	topManager := command.NewManager(command.ManagerConfig{Searchable: true})
+
+	for name, cat := range categories {
+		manager := command.NewManager(command.ManagerConfig{Searchable: true})
+		for _, item := range *cat {
+			if item.Special {
+				manager.Register(item.Name, item.Description, wrapTarget(item, handleSpecial))
+			} else {
+				manager.Register(item.Name, item.Description, wrapTarget(item, handleNormal))
+			}
+		}
+
+		topManager.Register(name, "", func() error {
+			manager.Tui()
+			return nil
+		})
+	}
+
 	for {
-		exit := manager.Tui()
+		exit := topManager.Tui()
 		if exit {
 			return nil
 		}
-
 	}
 }
 

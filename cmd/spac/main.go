@@ -17,6 +17,7 @@ func main() {
 	manager.Register("config", "Update App Configs", config.Config)
 	manager.Register("credential", "Configure GCT Credential Manager", credmanager.Credential)
 	manager.Register("converter", "Convert Quantities", converter.Converter)
+	manager.Register("refresh", "Refresh Install List", install.RefreshCache)
 
 	for {
 		res := manager.Tui()
