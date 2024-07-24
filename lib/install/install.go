@@ -2,7 +2,6 @@ package install
 
 import (
 	"fmt"
-	"os"
 	"runtime"
 	"sort"
 
@@ -10,6 +9,7 @@ import (
 	"github.com/lspaccatrosi16/go-cli-tools/input"
 	"github.com/lspaccatrosi16/spac/lib/install/specific"
 	"github.com/lspaccatrosi16/spac/lib/install/sudo"
+	"github.com/lspaccatrosi16/spac/lib/scache"
 )
 
 type aupPkg struct {
@@ -49,7 +49,12 @@ func (b installList) Less(i int, j int) bool {
 }
 
 func RefreshCache() error {
-	return os.RemoveAll(configDir)
+	err := scache.RemoveCachedFile("packagemanifest.cache")
+	if err != nil {
+		return err
+	}
+	err = scache.RemoveCachedFile("aupmanifest.cache")
+	return err
 }
 
 func Install() error {

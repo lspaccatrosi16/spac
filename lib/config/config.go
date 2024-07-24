@@ -2,44 +2,26 @@ package config
 
 import (
 	"fmt"
-	"io"
 	"net/http"
 	"os"
-	"path/filepath"
 	"sort"
 	"strings"
 
 	"github.com/lspaccatrosi16/go-cli-tools/command"
+	"github.com/lspaccatrosi16/go-libs/fs"
 )
-
-type configItem struct {
-	Name string
-	File string
-	Path string
-}
-
-type configList []configItem
-
-func (c configList) Len() int {
-	return len(c)
-}
-
-func (c configList) Swap(i int, j int) {
-	c[i], c[j] = c[j], c[i]
-}
-
-func (c configList) Less(i int, j int) bool {
-	return c[i].Name < c[j].Name
-}
 
 func Config() error {
 	manager := command.NewManager(command.ManagerConfig{Searchable: true})
-	items := list()
+	items, err := list()
+	if err != nil {
+		return err
+	}
 
 	sort.Sort(items)
 
 	for _, item := range items {
-		manager.Register(item.Name, fmt.Sprintf("update %s configuration", item.Name), UseConfig(item))
+		manager.Register(item.AppName, fmt.Sprintf("update %s configuration", item.AppName), UseConfig(item))
 	}
 
 	for {
@@ -55,9 +37,8 @@ func Config() error {
 
 func UseConfig(item configItem) func() error {
 	return func() error {
-		url := fmt.Sprintf("https://raw.githubusercontent.com/lspaccatrosi16/luca-config/master/%s", item.File)
-
-		fmt.Printf("Downloading %s config from lspaccatrosi16/luca-config\n", item.Name)
+		url := fmt.Sprintf("https://raw.githubusercontent.com/lspaccatrosi16/config/master/%s.zip", item.AppName)
+		fmt.Printf("Downloading %s config from lspaccatrosi16/config\n", item.AppName)
 
 		resp, err := http.Get(url)
 
@@ -70,23 +51,20 @@ func UseConfig(item configItem) func() error {
 			return fmt.Errorf("could not resolve HOME env var")
 		}
 
-		parsedBasePath := strings.ReplaceAll(item.Path, "$HOME", homeDir)
+		parsedPath := strings.ReplaceAll(item.CfgPath, "$HOME", homeDir)
+		if item.Replace {
+			err = os.RemoveAll(parsedPath)
+			if err != nil {
+				return err
+			}
+		}
 
-		targetPath := filepath.Join(parsedBasePath, item.File)
-
-		f, err := os.Create(targetPath)
-
+		err = fs.Decompress(resp.Body, parsedPath, fs.Zip)
 		if err != nil {
 			return err
 		}
 
-		io.Copy(f, resp.Body)
-
-		resp.Body.Close()
-		f.Close()
-
-		fmt.Printf("Successfuly got %s config\n", item.Name)
-
+		fmt.Printf("Successfuly got %s config\n", item.AppName)
 		return nil
 	}
 

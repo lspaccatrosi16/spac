@@ -1,0 +1,14 @@
+name: spac
+targets: 
+  - {os: linux, arch: amd64}
+modules: 
+  - name: build
+    config:
+      commands: 
+        - {path: ./cmd/spac/main.go, name: spac}
+      ldflags: -s -w
+  
+  - name: output
+    config:
+      module: build
+      outDir: out

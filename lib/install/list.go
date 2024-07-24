@@ -5,17 +5,11 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
-	"os"
-	"path/filepath"
 
 	"github.com/lspaccatrosi16/go-cli-tools/cache"
-	"github.com/lspaccatrosi16/go-cli-tools/config"
 	"github.com/lspaccatrosi16/spac/lib/install/sudo"
+	"github.com/lspaccatrosi16/spac/lib/scache"
 )
-
-var configDir, _ = config.GetConfigPath("spac")
-
-const cacheExpiry = 60 * 60 * 24
 
 type aupinstallable struct {
 	Name         string   `json:"name"`
@@ -45,58 +39,14 @@ func specificList() installList {
 	}
 }
 
-func getCachedFile(name string) (*cache.CacheItem, error) {
-	item := new(cache.CacheItem)
-	path := filepath.Join(configDir, name)
-	f, err := os.Open(path)
-	if err != nil {
-		if os.IsNotExist(err) {
-			return item, nil
-		}
-		return nil, err
-	}
-
-	defer f.Close()
-
-	buf := bytes.NewBuffer(nil)
-	io.Copy(buf, f)
-
-	err = item.Decode(buf.Bytes())
-	if err != nil {
-		return nil, err
-	}
-	return item, nil
-}
-
-func writeCachedFile(name string, item *cache.CacheItem) error {
-	path := filepath.Join(configDir, name)
-	f, err := os.Create(path)
-	if err != nil {
-		return err
-	}
-
-	defer f.Close()
-
-	data, err := item.Encode()
-	if err != nil {
-		return err
-	}
-
-	buf := bytes.NewBuffer(data)
-	io.Copy(f, buf)
-
-	return nil
-
-}
-
 func aupPackages() (installList, error) {
-	acache, err := getCachedFile("aupmanifest.cache")
+	acache, err := scache.GetCachedFile("aupmanifest.cache")
 	if err != nil {
 		return nil, err
 	}
 
 	var buf bytes.Buffer
-	if acache.IsValid(cacheExpiry) {
+	if acache.IsValid(scache.CacheExpiry) {
 		buf = *bytes.NewBuffer(acache.Data)
 	} else {
 		resp, err := http.Get("https://raw.githubusercontent.com/lspaccatrosi16/spacmanifest/master/aupmanifest.json")
@@ -106,7 +56,7 @@ func aupPackages() (installList, error) {
 
 		defer resp.Body.Close()
 		io.Copy(&buf, resp.Body)
-		writeCachedFile("aupmanifest.cache", cache.CreateCacheItem(buf.Bytes()))
+		scache.WriteCachedFile("aupmanifest.cache", cache.CreateCacheItem(buf.Bytes()))
 	}
 
 	var manifest []aupinstallable
@@ -138,12 +88,12 @@ func aupPackages() (installList, error) {
 }
 
 func managerPackages() (installList, error) {
-	mcache, err := getCachedFile("packagemanifest.cache")
+	mcache, err := scache.GetCachedFile("packagemanifest.cache")
 	if err != nil {
 		return nil, err
 	}
 	var buf bytes.Buffer
-	if mcache.IsValid(cacheExpiry) {
+	if mcache.IsValid(scache.CacheExpiry) {
 		buf = *bytes.NewBuffer(mcache.Data)
 	} else {
 		resp, err := http.Get("https://raw.githubusercontent.com/lspaccatrosi16/spacmanifest/master/packagemanifest.json")
@@ -153,7 +103,7 @@ func managerPackages() (installList, error) {
 
 		defer resp.Body.Close()
 		io.Copy(&buf, resp.Body)
-		writeCachedFile("packagemanifest.cache", cache.CreateCacheItem(buf.Bytes()))
+		scache.WriteCachedFile("packagemanifest.cache", cache.CreateCacheItem(buf.Bytes()))
 	}
 
 	var manifest []packageinstallable
