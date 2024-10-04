@@ -26,7 +26,3 @@ func main() {
 		}
 	}
 }
-
-// what do I want this to do?
-
-// setup environment

@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/lspaccatrosi16/go-cli-tools/command"
+	"github.com/lspaccatrosi16/go-cli-tools/input"
 	"github.com/lspaccatrosi16/go-libs/fs"
 )
 
@@ -58,6 +59,17 @@ func UseConfig(item configItem) func() error {
 				return err
 			}
 		}
+
+		defPath, err := input.GetConfirmSelection("Use the default config path?")
+		if err != nil {
+			return err
+		}
+
+		if !defPath {
+			parsedPath = input.GetInput("Output path")
+		}
+
+		fmt.Printf("Using path: %s\n", parsedPath)
 
 		err = fs.Decompress(resp.Body, parsedPath, fs.Zip)
 		if err != nil {

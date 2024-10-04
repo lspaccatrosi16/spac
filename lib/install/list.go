@@ -130,7 +130,7 @@ func managerPackages() (installList, error) {
 			PkgName: &pkg{
 				APT:     item.Apt,
 				DNF:     item.Dnf,
-				FLATPAK: item.Dnf,
+				FLATPAK: item.Flatpak,
 			},
 			Config:   cfunc,
 			Category: item.Category,
