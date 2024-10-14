@@ -11,8 +11,8 @@ import (
 )
 
 func Setup() error {
-	if runtime.GOOS != "linux" {
-		return fmt.Errorf("setup command only works on linux, not %s", runtime.GOOS)
+	if runtime.GOOS != "linux" && runtime.GOOS != "android" && runtime.GOOS != "darwin" {
+		return fmt.Errorf("setup command only works on linux, android and darwin, not %s", runtime.GOOS)
 	}
 
 	return loop()

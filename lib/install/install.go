@@ -58,8 +58,8 @@ func RefreshCache() error {
 }
 
 func Install() error {
-	if runtime.GOOS != "linux" {
-		return fmt.Errorf("install command only works on linux, not %s", runtime.GOOS)
+	if runtime.GOOS != "linux" && runtime.GOOS != "android"{
+		return fmt.Errorf("install command only works on linux and android, not %s", runtime.GOOS)
 	}
 	return loop()
 }

@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strconv"
 	"strings"
 
@@ -17,6 +18,10 @@ import (
 func Install() error {
 start:
 	langVersion := input.GetValidatedInput("Golang version", validate)
+
+	if runtime.GOOS != "linux" {
+		return fmt.Errorf("automatic go installation is only availible for linux hosts")
+	}
 
 	goUrl := fmt.Sprintf("https://go.dev/dl/go%s.linux-amd64.tar.gz", langVersion)
 
